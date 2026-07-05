@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Landscape AR Rich Rose Bush</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+        #webcam {
+            display: none;
+        }
+        #output_canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        #start-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 18px 45px;
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #e91e63, #ff5722);
+            color: white;
+            border: none;
+            border-radius: 35px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            z-index: 10;
+            transition: 0.2s;
+        }
+        #start-btn:active {
+            transform: translate(-50%, -50%) scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <button id="start-btn">Camera Chalu Korun (Start)</button>
+    <video id="webcam" autoplay playsinline></video>
+    <canvas id="output_canvas"></canvas>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('output_canvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('start-btn');
+
+        let bloomValue = 0.0;
+        let growValue = 0.0;
+        let windValue = 2.5;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 300));
+        resizeCanvas();
+
+        // Initialize MediaPipe Hands
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+            maxNumHands: 2,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.55,
+            minTrackingConfidence: 0.55
+        });
+
+        hands.onResults(onResults);
+
+        function onResults(results) {
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Widescreen Mirror Horizontal View
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            if (results.image) {
+                ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+            }
+            ctx.restore();
+
+            if (results.multiHandLandmarks && results.multiHandedness) {
+                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                    const landmarks = results.multiHandLandmarks[i];
+                    const networkHand = results.multiHandedness[i].label; // 'Left' or 'Right'
+                    
+                    const p1 = landmarks[4]; // Thumb tip
+                    const p2 = landmarks[8]; // Index tip
+                    const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+                    
+                    let val = (dist - 0.03) / 0.18;
+                    val = Math.max(0, Math.min(1, val));
+
+                    if (networkHand === 'Right') { 
+                        bloomValue = val;
+                    } else {
+                        growValue = val;
+                    }
+                }
+            }
+
+            // Fine breeze calculation
+            windValue = 2.0 + Math.sin(Date.now() * 0.0025) * 1.2;
+
+            // Render the dense rose bush matching user's image structure
+            drawRoseBush(growValue, bloomValue, windValue);
+        }
+
+        function drawRoseBush(grow, bloom, wind) {
+            const baseX = canvas.width * 0.5; // Centered for landscape view
+            const baseY = canvas.height;
+            const maxBushHeight = canvas.height * 0.65;
+            const currentHeight = grow * maxBushHeight;
+            
+            if (currentHeight < 20) return;
+
+            ctx.save();
+            
+            // Soft sway animation link to height
+            const windOffset = Math.sin(Date.now() * 0.003) * wind * 14 * (currentHeight / maxBushHeight);
+            
+            // Position origin at base center
+            ctx.translate(baseX + windOffset, baseY);
+            
+            // Main Base Stem (Ghono Gach Trunk)
+            ctx.strokeStyle = '#1B5E20';
+            ctx.lineWidth = 22 * grow;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -45 * grow);
+            ctx.stroke();
+
+            // Multi-branch definition structure for creating a full rose bush like 14219.jpg
+            const roseBranches = [
+                { startX: 0, startY: -20, endX: -40, endY: -110, cpX: -15, cpY: -65, fScale: 1.0 },
+                { startX: 0, startY: -25, endX: 45, endY: -120, cpX: 25, cpY: -70, fScale: 1.1 },
+                { startX: -20, startY: -65, endX: -100, endY: -170, cpX: -65, cpY: -110, fScale: 0.95 },
+                { startX: 20, startY: -70, endX: 110, endY: -180, cpX: 70, cpY: -120, fScale: 1.0 },
+                { startX: -10, startY: -40, endX: -80, endY: -100, cpX: -50, cpY: -70, fScale: 0.85 },
+                { startX: 10, startY: -40, endX: 80, endY: -110, cpX: 50, cpY: -70, fScale: 0.85 },
+                // Upper layers
+                { startX: -40, startY: -110, endX: -70, endY: -240, cpX: -60, cpY: -180, fScale: 0.9 },
+                { startX: 45, startY: -120, endX: 75, endY: -250, cpX: 65, cpY: -190, fScale: 0.95 },
+                { startX: -40, startY: -110, endX: 15, endY: -230, cpX: -10, cpY: -170, fScale: 0.85 },
+                { startX: 45, startY: -120, endX: -15, endY: -245, cpX: 15, cpY: -185, fScale: 0.85 },
+                // Extreme outer bush expansions
+                { startX: -65, startY: -110, endX: -160, endY: -160, cpX: -110, cpY: -135, fScale: 0.9 },
+                { startX: 70, startY: -120, endX: 165, endY: -175, cpX: 115, cpY: -145, fScale: 0.9 },
+                { startX: -100, startY: -170, endX: -170, endY: -240, cpX: -140, cpY: -205, fScale: 0.8 },
+                { startX: 110, startY: -180, endX: 180, endY: -250, cpX: 150, cpY: -215, fScale: 0.8 },
+                // Center dense top buds
+                { startX: 0, startY: -45, endX: 0, endY: -270, cpX: 10, cpY: -150, fScale: 1.15 }
+            ];
+
+            roseBranches.forEach(b => {
+                const activationThreshold = Math.abs(b.endY) / 290 * 0.85;
+                if (grow > activationThreshold) {
+                    ctx.save();
+                    ctx.strokeStyle = '#2E7D32';
+                    ctx.lineWidth = 9 * (1 - activationThreshold * 0.45) * grow;
+                    ctx.lineCap = 'round';
+                    
+                    let sX = b.startX * grow;
+                    let sY = b.startY * grow;
+                    let eX = b.endX * grow + (windOffset * 0.15);
+                    let eY = b.endY * grow;
+                    let cX = b.cpX * grow + (windOffset * 0.08);
+                    let cY = b.cpY * grow;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(sX, sY);
+                    ctx.quadraticCurveTo(cX, cY, eX, eY);
+                    ctx.stroke();
+                    
+                    // Generating realistic green leaves along the stems
+                    ctx.fillStyle = '#388E3C';
+                    for (let t = 0.25; t <= 0.85; t += 0.2) {
+                        let lx = (1-t)*(1-t)*sX + 2*(1-t)*t*cX + t*t*eX;
+                        let ly = (1-t)*(1-t)*sY + 2*(1-t)*t*cY + t*t*eY;
+                        
+                        ctx.beginPath();
+                        ctx.ellipse(lx, ly, 14 * grow, 7 * grow, Math.PI/4 + t, 0, Math.PI*2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.ellipse(lx + 4, ly - 3, 11 * grow, 6 * grow, -Math.PI/4, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                    
+                    // Draw Rose bud/flower at tip
+                    drawRoseBudToFlower(eX, eY, b.fScale * grow, bloom);
+                    ctx.restore();
+                }
+            });
+            
+            ctx.restore();
+        }
+
+        function drawRoseBudToFlower(rx, ry, scale, bloom) {
+            ctx.save();
+            ctx.translate(rx, ry);
+            
+            // Rich magenta red rose color palettes matching 14219.jpg
+            const mainRed = '#E91E63'; 
+            const deepRed = '#C2185B';
+            const sepalsGreen = '#1B5E20';
+            
+            // Draw Sepals/Calyx (সবুজ পাতার মতো গোঁড়া)
+            ctx.fillStyle = sepalsGreen;
+            ctx.beginPath();
+            ctx.arc(0, 4 * scale, 9 * scale, 0, Math.PI);
+            ctx.fill();
+            
+            if (bloom < 0.18) {
+                // --- STAGE 1: TIGHT BUD (একদম বন্ধ কলি) ---
+                ctx.fillStyle = deepRed;
+                ctx.beginPath();
+                ctx.ellipse(0, -3 * scale, 8 * scale, 14 * scale, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = mainRed;
+                ctx.beginPath();
+                ctx.ellipse(-3 * scale, -3 * scale, 6 * scale, 13 * scale, -0.12, 0, Math.PI * 2);
+                ctx.ellipse(3 * scale, -3 * scale, 6 * scale, 13 * scale, 0.12, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // --- STAGE 2: BLOOMING ROSE (পাপড়ি মেলে ফুটা ফুল) ---
+                const layers = 3;
+                const basePetalsCount = 5;
+                
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = 'rgba(233, 30, 99, 0.5)';
+
+                for (let l = 0; l < layers; l++) {
+                    const layerBloomFactor = Math.min(1, bloom * (1.0 + l * 0.25));
+                    const petals = basePetalsCount + (l * 2);
+                    const layerScale = scale * (1.1 - l * 0.22);
+                    
+                    const pDistY = layerBloomFactor * 24 * layerScale;
+                    const pDistX = layerBloomFactor * 16 * layerScale;
+                    
+                    ctx.fillStyle = (l === 0) ? deepRed : mainRed;
+                    
+                    for (let i = 0; i < petals; i++) {
+                        ctx.save();
+                        ctx.rotate((i * 2 * Math.PI) / petals + (l * 0.6));
+                        ctx.beginPath();
+                        ctx.ellipse(0, -pDistY / 1.6, pDistX, pDistY, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    }
+                }
+                
+                // Deep inner petal shadow core
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#880E4F';
+                ctx.beginPath();
+                ctx.arc(0, 0, 6 * scale * bloom, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.restore();
+        }
+
+        // Optimized landscape camera initialization 
+        startBtn.addEventListener('click', async () => {
+            startBtn.style.display = 'none';
+            const camera = new Camera(video, {
+                onFrame: async () => {
+                    await hands.send({image: video});
+                },
+                width: 1280, 
+                height: 720,
+                facingMode: 'user'
+            });
+            camera.start().catch(err => {
+                alert("Camera error: " + err);
+                startBtn.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
