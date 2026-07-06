@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MD SHAHADAT - Portfolio with Auth</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b1120;
+            --card-bg: #131c31;
+            --primary-color: #00e5ff;
+            --text-main: #ffffff;
+            --text-muted: #a0aabf;
+            --font-main: 'Poppins', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Particle Background */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background-color: var(--bg-color);
+        }
+
+        /* =========================================
+           Authentication (Login/Signup) Styles
+           ========================================= */
+        #auth-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2000;
+            background: rgba(11, 17, 32, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .auth-container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+        }
+
+        .auth-container h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .auth-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .auth-form label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            background: #0b1120;
+            border: 1px solid #1a233a;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .auth-form input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .auth-btn {
+            width: 100%;
+            background: var(--primary-color);
+            color: #000;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .auth-switch span {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        #signup-form {
+            display: none;
+        }
+
+        /* Error/Success Messages */
+        #auth-msg {
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 15px;
+            color: #ff4757;
+            min-height: 20px;
+        }
+
+        /* =========================================
+           Main Website Styles (Hidden by default)
+           ========================================= */
+        #main-website {
+            display: none; /* Hidden until logged in */
+        }
+
+        /* Navbar */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(11, 17, 32, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover, .active-nav {
+            color: var(--primary-color);
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-icons a {
+            color: var(--text-main);
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        .nav-icons a:hover {
+            color: var(--primary-color);
+        }
+
+        .logout-btn {
+            border: 1px solid #ff4757;
+            padding: 5px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #ff4757;
+            font-size: 14px;
+            cursor: pointer;
+            background: transparent;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ff4757;
+            color: #fff;
+        }
+
+        /* Section Global */
+        section {
+            padding: 100px 8% 50px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+        }
+
+        .section-title span {
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 5px;
+        }
+
+        /* Rest of the components (Buttons, Cards, etc.) */
+        .btn-primary {
+            background: var(--primary-color);
+            color: #000;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.7);
+        }
+
+        /* Services Section */
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .service-card { background: var(--card-bg); padding: 40px 20px; border-radius: 15px; text-align: center; transition: 0.3s; border: 1px solid transparent; }
+        .service-card:hover { border-color: var(--primary-color); transform: translateY(-5px); }
+        .service-card i { font-size: 40px; color: var(--primary-color); margin-bottom: 20px; }
+        .service-card h3 { margin-bottom: 15px; font-size: 18px; color: var(--primary-color); }
+        .service-card p { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
+        .btn-outline { border: 1px solid #33415c; color: var(--text-main); padding: 8px 20px; border-radius: 20px; text-decoration: none; font-size: 12px; transition: 0.3s; }
+        .service-card:hover .btn-outline { border-color: var(--primary-color); color: var(--primary-color); }
+
+        /* Projects Section */
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .project-card { background: var(--card-bg); border-radius: 15px; padding: 20px; }
+        .project-img { width: 100%; height: 180px; background: #1a233a; border-radius: 10px; margin-bottom: 20px; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        .project-img img { width: 100%; height: 100%; object-fit: cover; } /* For custom photos */
+        .project-card h3 { font-size: 18px; margin-bottom: 10px; }
+        .project-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+        /* About & Contact styles... */
+        #home { align-items: center; text-align: center; }
+        #home h1 { font-size: 45px; margin-bottom: 20px; }
+        #home p { color: var(--text-muted); max-width: 600px; margin-bottom: 30px; }
+        .about-content { display: flex; flex-wrap: wrap; gap: 50px; background: var(--card-bg); padding: 40px; border-radius: 20px; }
+        .about-left { flex: 1; min-width: 250px; text-align: center; }
+        .profile-img { width: 150px; height: 150px; border-radius: 50%; border: 3px solid var(--primary-color); margin: 0 auto 20px; background: #1a233a; overflow: hidden;}
+        .profile-img img { width: 100%; height: 100%; object-fit: cover; }
+        .about-right { flex: 2; min-width: 300px; }
+        .about-right h2 { color: var(--primary-color); margin-bottom: 15px; }
+        .about-right p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 30px; }
+        .skills .skill-item { margin-bottom: 15px; }
+        .skill-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+        .progress-bar { width: 100%; height: 6px; background: #1a233a; border-radius: 3px; overflow: hidden; }
+        .progress { height: 100%; background: var(--primary-color); border-radius: 3px; }
+        
+        .contact-container { display: flex; flex-wrap: wrap; gap: 30px; }
+        .contact-info { flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 20px; }
+        .info-box { background: var(--card-bg); padding: 20px; border-radius: 10px; display: flex; align-items: center; gap: 15px; }
+        .info-box i { color: var(--primary-color); font-size: 24px; }
+        .info-box h4 { font-size: 14px; margin-bottom: 5px; }
+        .info-box p { color: var(--text-muted); font-size: 13px; }
+        .contact-form { flex: 2; min-width: 300px; background: var(--card-bg); padding: 30px; border-radius: 15px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; margin-bottom: 8px; color: #ddd; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px 15px; background: #0b1120; border: 1px solid #1a233a; border-radius: 8px; color: #fff; outline: none; transition: 0.3s; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-color); }
+        .form-group textarea { height: 120px; resize: none; }
+        .btn-full { width: 100%; text-align: center; cursor: pointer; }
+
+        footer { text-align: center; padding: 30px; background: rgba(11, 17, 32, 0.9); border-top: 1px solid #1a233a; }
+        .footer-social { margin-bottom: 15px; }
+        .footer-social a { color: var(--text-muted); margin: 0 10px; font-size: 18px; transition: 0.3s; }
+        .footer-social a:hover { color: var(--primary-color); }
+        footer p { color: var(--text-muted); font-size: 12px; }
+
+        @media (max-width: 768px) {
+            nav ul { display: none; }
+            .about-content, .contact-container { flex-direction: column; }
+            #home h1 { font-size: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Particle Background (Always visible) -->
+    <div id="particles-js"></div>
+
+    <!-- ==========================================
+         AUTHENTICATION SECTION (Login & Signup)
+         ========================================== -->
+    <div id="auth-section">
+        <div class="auth-container">
+            
+            <!-- Login Form -->
+            <div id="login-form">
+                <h2>Login to Continue</h2>
+                <div id="auth-msg"></div>
+                <div class="auth-form">
+                    <div class="form-group">
+                        <label>Username or Email</label>
+                        <input type="text" id="login-user" placeholder="Enter your username">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-pass" placeholder="Enter password">
+                    </div>
+                    <button class="auth-btn" onclick="loginUser()">Login</button>
+                    <div class="auth-switch">
+                        Don't have an account? <span onclick="toggleAuth('signup')">Sign Up</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div id="signup-form">
+                <h2>Create Account</h2>
+                <div id="signup-msg" style="text-align: center; font-size: 13px; margin-bottom: 15px; color: #00e5ff;"></div>
+                <div class="auth-form">
+                    <div class="form-group">
+                        <label>Choose Username</label>
+                        <input type="text" id="signup-user" placeholder="Create a username">
+                    </div>
+                    <div class="form-group">
+                        <label>Create Password</label>
+                        <input type="password" id="signup-pass" placeholder="Create a password">
+                    </div>
+                    <button class="auth-btn" onclick="registerUser()">Sign Up</button>
+                    <div class="auth-switch">
+                        Already have an account? <span onclick="toggleAuth('login')">Login</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MAIN WEBSITE CONTENT (Hidden till login)
+         ========================================== -->
+    <div id="main-website">
+        
+        <!-- Header -->
+        <header>
+            <a href="#" class="logo">SHAHADAT</a>
+            <nav>
+                <ul>
+                    <li><a href="#home" class="active-nav">Home</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#portfolio">Portfolio</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    
+                    <!-- ভবিষ্যতে পেজ অ্যাড করলে মেনু লিঙ্ক এখানে দিন: 
+                    <li><a href="#new-page">New Page</a></li> -->
+                </ul>
+            </nav>
+            <div class="nav-icons">
+                <a href="#"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <!-- Logout Button -->
+                <button class="logout-btn" onclick="logoutUser()">Logout</button>
+            </div>
+        </header>
+
+        <!-- Home Section -->
+        <section id="home">
+            <h1>Welcome to my website</h1>
+            <p>I create modern, responsive, and aesthetically pleasing websites for your business needs.</p>
+            <a href="#services" class="btn-primary">Explore Services</a>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services">
+            <h2 class="section-title"><span>OUR SERVICES</span></h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <i class="fas fa-laptop-code"></i>
+                    <h3>Web Design & Development</h3>
+                    <p>আপনার ব্র্যান্ডের জন্য সম্পূর্ণ কাস্টমাইজড এবং আধুনিক ওয়েবসাইট তৈরি করে থাকি।</p>
+                    <a href="#" class="btn-outline">View Project</a>
+                </div>
+                <div class="service-card">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>E-commerce</h3>
+                    <p>সহজ প্রোডাক্ট ম্যানেজমেন্ট এবং পেমেন্ট গেটওয়ে সহ ফাংশনাল অনলাইন শপ তৈরি।</p>
+                    <a href="#" class="btn-outline">View Project</a>
+                </div>
+                <!-- চাইলে এখানে আরও সার্ভিস অ্যাড করতে পারেন -->
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="portfolio">
+            <h2 class="section-title"><span>MY PROJECTS</span></h2>
+            <div class="projects-grid">
+                
+                <div class="project-card">
+                    <!-- নিজস্ব ছবি ব্যবহার করার নিয়ম: 
+                         <img src="project1.jpg" alt="Project"> 
+                         নিচের ডিভের ভেতর বসিয়ে দিন -->
+                    <div class="project-img">
+                        <!-- <img src="your-image-link.jpg" alt="AI Gallery"> -->
+                    </div>
+                    <h3>AI Image Gallery</h3>
+                    <p>A portfolio site for displaying high-resolution AI generated images.</p>
+                    <a href="#" class="btn-outline">Live Demo <i class="fas fa-external-link-alt"></i></a>
+                </div>
+                
+                <div class="project-card">
+                    <div class="project-img"></div>
+                    <h3>Corporate E-commerce</h3>
+                    <p>Full-stack e-commerce solution with integrated payment gateway.</p>
+                    <a href="#" class="btn-outline">Live Demo <i class="fas fa-external-link-alt"></i></a>
+                </div>
+
+                <!-- নতুন প্রজেক্ট কার্ড এখানে কপি পেস্ট করুন -->
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about">
+            <h2 class="section-title"><span>ABOUT ME</span></h2>
+            <div class="about-content">
+                <div class="about-left">
+                    <div class="profile-img">
+                        <!-- আপনার ছবি এখানে দিন: -->
+                        <!-- <img src="profile.jpg" alt="My Photo"> -->
+                    </div>
+                    <a href="#" class="btn-primary"><i class="fas fa-download"></i> Download CV</a>
+                </div>
+                <div class="about-right">
+                    <h2>Who am I?</h2>
+                    <p>Hi, I am Shahadat. I am a passionate web developer...</p>
+                    <h3 style="margin-bottom: 15px; font-size: 16px;">My Skills</h3>
+                    <div class="skills">
+                        <div class="skill-item">
+                            <div class="skill-info"><span>HTML & CSS</span><span>90%</span></div>
+                            <div class="progress-bar"><div class="progress" style="width: 90%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2 class="section-title"><span>GET IN TOUCH</span></h2>
+            <div class="contact-container">
+                <!-- Contact info content as before -->
+                <div class="contact-info">
+                    <div class="info-box">
+                        <i class="fas fa-envelope"></i>
+                        <div><h4>Email</h4><p>shahadat@example.com</p></div>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form>
+                        <div class="form-group">
+                            <label>Your Name</label>
+                            <input type="text" placeholder="Write your name">
+                        </div>
+                        <button type="button" class="btn-primary btn-full">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             ভবিষ্যতে নতুন পেজ বা সেকশন অ্যাড করার জায়গা
+             ========================================== -->
+        <!-- 
+        <section id="new-page">
+            <h2 class="section-title"><span>NEW PAGE TITLE</span></h2>
+            <div>
+                এখানে আপনার নতুন কন্টেন্ট বা ছবি দিন
+            </div>
+        </section> 
+        -->
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2026 MD SHAHADAT. সর্বস্বত্ব সংরক্ষিত।</p>
+        </footer>
+
+    </div> <!-- End Main Website -->
+
+
+    <!-- Particles.js Library -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <!-- JavaScript for Authentication & Particles -->
+    <script>
+        // --- 1. Authentication Logic (Login/Signup via LocalStorage) ---
+
+        const authSection = document.getElementById('auth-section');
+        const mainWebsite = document.getElementById('main-website');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const authMsg = document.getElementById('auth-msg');
+        const signupMsg = document.getElementById('signup-msg');
+
+        // Check if user is already logged in when page loads
+        window.onload = function() {
+            if(localStorage.getItem('isLoggedIn') === 'true') {
+                showMainWebsite();
+            }
+        };
+
+        // Switch between Login and Sign Up screen
+        function toggleAuth(type) {
+            authMsg.innerText = '';
+            signupMsg.innerText = '';
+            if (type === 'signup') {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            } else {
+                signupForm.style.display = 'none';
+                loginForm.style.display = 'block';
+            }
+        }
+
+        // Register a new user
+        function registerUser() {
+            const user = document.getElementById('signup-user').value.trim();
+            const pass = document.getElementById('signup-pass').value.trim();
+
+            if(user === '' || pass === '') {
+                signupMsg.style.color = '#ff4757';
+                signupMsg.innerText = 'Please fill all fields!';
+                return;
+            }
+
+            // Save credentials to local storage
+            localStorage.setItem('savedUser', user);
+            localStorage.setItem('savedPass', pass);
+            
+            signupMsg.style.color = '#00e5ff';
+            signupMsg.innerText = 'Account created successfully! Please Login.';
+            setTimeout(() => toggleAuth('login'), 1500); // go to login after 1.5s
+        }
+
+        // Login user
+        function loginUser() {
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            
+            const savedUser = localStorage.getItem('savedUser');
+            const savedPass = localStorage.getItem('savedPass');
+
+            // Default demo login if no account created yet: admin / 1234
+            if ((user === savedUser && pass === savedPass && user !== null) || (user === 'admin' && pass === '1234')) {
+                localStorage.setItem('isLoggedIn', 'true');
+                showMainWebsite();
+            } else {
+                authMsg.innerText = 'Invalid Username or Password!';
+            }
+        }
+
+        // Logout user
+        function logoutUser() {
+            localStorage.setItem('isLoggedIn', 'false');
+            mainWebsite.style.display = 'none';
+            authSection.style.display = 'flex';
+            document.getElementById('login-user').value = '';
+            document.getElementById('login-pass').value = '';
+            authMsg.innerText = '';
+        }
+
+        // Show Main Website & hide Auth
+        function showMainWebsite() {
+            authSection.style.display = 'none';
+            mainWebsite.style.display = 'block';
+        }
+
+
+        // --- 2. Particles JS Configuration (Background Animation) ---
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#00e5ff" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5, "random": true, "anim": { "enable": true, "speed": 1, "opacity_min": 0.1, "sync": false } },
+                "size": { "value": 3, "random": true, "anim": { "enable": false } },
+                "line_linked": { "enable": true, "distance": 150, "color": "#00e5ff", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
+                "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 1 } }, "push": { "particles_nb": 4 } }
+            },
+            "retina_detect": true
+        });
+    </script>
+</body>
+</html>
