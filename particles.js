@@ -1,105 +1,138 @@
-// Three.js Interactive Particle Background Engine
-const canvas = document.querySelector('#webgl');
-const scene = new THREE.Scene();
+const canvas = document.getElementById("webgl");
+const ctx = canvas.getContext("2d");
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.z = 5;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+let particlesArray;
 
-// Generate custom space coordinates
-const count = 25000;
-const geometry = new THREE.BufferGeometry();
-const positions = new Float32Array(count * 3);
-
-for(let i = 0; i < count * 3; i += 3) {
-    positions[i]     = (Math.random() - 0.5) * 12; // X
-    positions[i + 1] = (Math.random() - 0.5) * 12; // Y
-    positions[i + 2] = (Math.random() - 0.5) * 12; // Z
+// মাউসের পজিশন ট্র্যাক করার জন্য
+let mouse = {
+    x: null,
+    y: null,
+    radius: 150
 }
 
-geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+window.addEventListener('mousemove', function(event) {
+    mouse.x = event.x;
+    mouse.y = event.y;
+});
 
-const uniforms = {
-    uTime: { value: 0 },
-    uMouse: { value: new THREE.Vector2(0, 0) }
-};
+// পার্টিকেল তৈরি করার ক্লাস
+class Particle {
+    constructor(x, y, directionX, directionY, size, color) {
+        this.x = x;
+        this.y = y;
+        this.directionX = directionX;
+        this.directionY = directionY;
+        this.size = size;
+        this.color = color;
+    }
 
-const vertexShader = `
-    uniform float uTime;
-    uniform vec2 uMouse;
-    varying vec3 vPosition;
-    void main() {
-        vPosition = position;
-        vec3 pos = position;
+    // পার্টিকেল আঁকার ফাংশন
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+        ctx.fillStyle = '#00e5ff'; // থিমের নিয়ন সায়ান কালার
+        ctx.fill();
+    }
 
-        float wave = sin(pos.x * 1.2 + uTime) * cos(pos.y * 1.2 + uTime) * 0.3;
-        pos.z += wave;
-
-        float dist = distance(pos.xy, uMouse * 4.5);
-        if(dist < 1.8) {
-            pos.z += (1.8 - dist) * 0.9;
+    // পার্টিকেলের মুভমেন্ট এবং বাউন্স চেক করার ফাংশন
+    update() {
+        if (this.x > canvas.width || this.x < 0) {
+            this.directionX = -this.directionX;
+        }
+        if (this.y > canvas.height || this.y < 0) {
+            this.directionY = -this.directionY;
         }
 
-        vec4 modelViewPosition = modelViewMatrix * vec4(pos, 1.0);
-        gl_Position = projectionMatrix * modelViewPosition;
-        gl_PointSize = 6.0 / -modelViewPosition.z;
+        // মাউসের সাথে ইন্টারেকশন (মাউস কাছে গেলে সরে যাবে)
+        let dx = mouse.x - this.x;
+        let dy = mouse.y - this.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < mouse.radius + this.size) {
+            if (mouse.x < this.x && this.x < canvas.width - this.size * 10) {
+                this.x += 3;
+            }
+            if (mouse.x > this.x && this.x > this.size * 10) {
+                this.x -= 3;
+            }
+            if (mouse.y < this.y && this.y < canvas.height - this.size * 10) {
+                this.y += 3;
+            }
+            if (mouse.y > this.y && this.y > this.size * 10) {
+                this.y -= 3;
+            }
+        }
+        this.x += this.directionX;
+        this.y += this.directionY;
+        this.draw();
     }
-`;
+}
 
-const fragmentShader = `
-    varying vec3 vPosition;
-    void main() {
-        float dist = distance(gl_PointCoord, vec2(0.5));
-        if(dist > 0.5) discard;
+// স্ক্রিনের সাইজ অনুযায়ী পার্টিকেল তৈরি
+function init() {
+    particlesArray = [];
+    let numberOfParticles = (canvas.height * canvas.width) / 12000;
+    
+    for (let i = 0; i < numberOfParticles; i++) {
+        let size = (Math.random() * 2) + 1;
+        let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+        let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+        let directionX = (Math.random() * 1.5) - 0.75;
+        let directionY = (Math.random() * 1.5) - 0.75;
+        let color = '#00e5ff';
 
-        // Custom cyber cyan glowing colors matching video style
-        vec3 color = vec3(0.0, 0.89, 1.0);
-        float alpha = 1.0 - (dist * 2.0);
-
-        gl_FragColor = vec4(color, alpha * 0.7);
+        particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
     }
-`;
+}
 
-const material = new THREE.ShaderMaterial({
-    vertexShader: vertexShader,
-    fragmentShader: fragmentShader,
-    uniforms: uniforms,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending
-});
+// পার্টিকেলগুলোর মধ্যে লাইন কানেকশন তৈরি করা
+function connect() {
+    let opacityValue = 1;
+    for (let a = 0; a < particlesArray.length; a++) {
+        for (let b = a; b < particlesArray.length; b++) {
+            let dx = particlesArray[a].x - particlesArray[b].x;
+            let dy = particlesArray[a].y - particlesArray[b].y;
+            let distance = dx * dx + dy * dy;
+            
+            if (distance < 15000) {
+                opacityValue = 1 - (distance / 15000);
+                ctx.strokeStyle = 'rgba(0, 229, 255,' + opacityValue + ')';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                ctx.stroke();
+            }
+        }
+    }
+}
 
-const points = new THREE.Points(geometry, material);
-scene.add(points);
-
-const mouse = new THREE.Vector2();
-window.addEventListener('mousemove', (event) => {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-});
-
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-const clock = new THREE.Clock();
-
-const animate = () => {
+// অ্যানিমেশন লুপ
+function animate() {
     requestAnimationFrame(animate);
-    const elapsedTime = clock.getElapsedTime();
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    
+    for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+    }
+    connect();
+}
 
-    uniforms.uTime.value = elapsedTime * 0.4;
-    uniforms.uMouse.value.x += (mouse.x - uniforms.uMouse.value.x) * 0.05;
-    uniforms.uMouse.value.y += (mouse.y - uniforms.uMouse.value.y) * 0.05;
+// স্ক্রিন রিসাইজ হলে ক্যানভাস মানিয়ে নেওয়া
+window.addEventListener('resize', function() {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    init();
+});
 
-    points.rotation.y = elapsedTime * 0.015;
+// মাউস স্ক্রিনের বাইরে গেলে ইন্টারেকশন বন্ধ করা
+window.addEventListener('mouseout', function() {
+    mouse.x = undefined;
+    mouse.y = undefined;
+});
 
-    renderer.render(scene, camera);
-};
-
+init();
 animate();
