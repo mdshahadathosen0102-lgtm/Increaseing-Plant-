@@ -1,373 +1,131 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - SHAHADAT</title>
+    <title>SHAHADAT</title>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* =========================================
-           GLOBAL RESET & CSS VARIABLES
-           ========================================= */
-        :root {
-            --primary-color: #00e5ff;
-            --bg-color: #03030c;
-            --text-main: #ffffff;
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: var(--font-family);
-            scroll-behavior: smooth;
-        }
-
-        /* html-এ ব্যাকগ্রাউন্ড গ্রেডিয়েন্ট দেওয়া হলো */
-        html {
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at top right, #111e30, transparent 40%),
-                radial-gradient(circle at bottom left, #0d1b2a, transparent 40%);
-            min-height: 100vh;
-        }
-
-        /* body-কে ট্রান্সপারেন্ট করা হলো যেন পার্টিকেলগুলো দেখা যায় */
+        /* বেসিক রিসেট */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        
         body {
-            background-color: transparent; 
-            color: var(--text-main);
-            overflow-x: hidden;
+            background-color: #03030c; /* আপনার আগের ডার্ক কালার */
+            background-image: radial-gradient(circle at top right, #111e30, transparent 40%),
+                              radial-gradient(circle at bottom left, #0d1b2a, transparent 40%);
+            color: #ffffff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* =========================================
-           CANVAS (NANO PARTICLES BACKGROUND)
-           ========================================= */
+        /* ক্যানভাস (পার্টিকেল ব্যাকগ্রাউন্ড) */
         #webgl {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: -1;
-            pointer-events: none; /* ক্লিকের ঝামেলা এড়াতে */
+            pointer-events: none; /* যাতে বাটনে ক্লিক করা যায় */
         }
 
-        /* =========================================
-           HEADER & NAVIGATION
-           ========================================= */
+        /* নেভিগেশন বার */
         header {
-            position: sticky;
-            top: 0;
-            padding: 20px 8%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 100;
-            background: rgba(3, 3, 12, 0.6);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px 5%;
         }
+        .logo { font-weight: bold; font-size: 1.2rem; color: #00e5ff; }
+        nav ul { display: flex; list-style: none; gap: 20px; }
+        nav ul li a { color: #fff; text-decoration: none; font-size: 0.9rem; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .login-btn { border: 1px solid #00e5ff; padding: 5px 15px; border-radius: 20px; color: #00e5ff; text-decoration: none; font-size: 0.9rem; }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-decoration: none;
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 30px;
-        }
-
-        nav ul li a {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: 0.3s ease;
-        }
-
-        nav ul li a:hover, nav ul li a.active {
-            color: var(--primary-color);
-            text-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
-        }
-
-        /* =========================================
-           HERO SECTION
-           ========================================= */
-        .main-content {
+        /* মূল কন্টেন্ট */
+        main {
             flex: 1;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: center;
-            padding: 80px 20px;
             text-align: center;
         }
-
-        .hero-section h1 {
-            font-size: 3.2rem;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
-            background: linear-gradient(to right, #fff, #00e5ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-section p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 1.1rem;
-            margin-bottom: 35px;
-            max-width: 600px;
-            line-height: 1.6;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 35px;
-            color: var(--primary-color);
-            text-decoration: none;
-            border: 1px solid var(--primary-color);
-            border-radius: 30px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            background: transparent;
-            transition: all 0.4s ease;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background: var(--primary-color);
-            color: #03030c;
-            box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
-            transform: translateY(-2px);
-        }
-
-        /* =========================================
-           FOOTER
-           ========================================= */
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            background: rgba(2, 2, 8, 0.8);
-            backdrop-filter: blur(5px);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-
-        .social-links a {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 1.3rem;
-            transition: 0.3s;
-            text-decoration: none;
-        }
-
-        .social-links a:hover {
-            color: var(--primary-color);
-            transform: scale(1.1);
-        }
-
-        /* =========================================
-           RESPONSIVE DESIGN
-           ========================================= */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px 5%;
-            }
-            nav ul {
-                gap: 15px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .hero-section h1 {
-                font-size: 2.2rem;
-            }
-        }
+        h1 { font-size: 3rem; margin-bottom: 10px; }
+        p { color: #aaa; margin-bottom: 20px; }
+        .explore-btn { background: #00e5ff; color: #000; padding: 10px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <!-- ব্যাকগ্রাউন্ডের ন্যানো পার্টিকেল ক্যানভাস -->
+    <!-- পার্টিকেল ক্যানভাস -->
     <canvas id="webgl"></canvas>
 
     <header>
-        <a href="index.html" class="logo">SHAHADAT</a>
+        <div class="logo">SHAHADAT</div>
         <nav>
             <ul>
-                <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="services.html">Services</a></li>
-                <li><a href="about.html">About us</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <!-- লগইন বাটন যুক্ত থাকলে এখানে রাখতে পারেন -->
-                <li><a href="login.html" style="border: 1px solid #00e5ff; padding: 5px 15px; border-radius: 20px;">Login</a></li>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Portfolio</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
             </ul>
         </nav>
+        <div class="nav-right">
+            <a href="#"><i class="fab fa-github"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <a href="#" class="login-btn">Login</a>
+        </div>
     </header>
 
-    <main class="main-content">
-        <section class="hero-section">
-            <h1>Welcome to my website</h1>
-            <p>I create modern, responsive, and aesthetically pleasing websites for your business needs.</p>
-            <a href="services.html" class="btn">Explore Services</a>
-        </section>
+    <main>
+        <h1>Welcome to my website</h1>
+        <p>I create modern, responsive, and aesthetically pleasing websites for your business needs.</p>
+        <a href="#" class="explore-btn">Explore Services</a>
     </main>
 
-    <footer>
-        <div class="social-links">
-            <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-            <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
-            <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i></a>
-        </div>
-        <p>&copy; 2026 MD SHAHADAT. সর্বস্বত্ব সংরক্ষিত।</p>
-    </footer>
-
-    <!-- =========================================
-         JAVASCRIPT FOR NANO PARTICLES
-         ========================================= -->
+    <!-- পার্টিকেল স্ক্রিপ্ট -->
     <script>
         const canvas = document.getElementById("webgl");
         const ctx = canvas.getContext("2d");
-        
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
-        let particlesArray;
-        let mouse = {
-            x: null,
-            y: null,
-            radius: 120
-        }
-
-        window.addEventListener('mousemove', function(event) {
-            mouse.x = event.x;
-            mouse.y = event.y;
-        });
-
+        let particlesArray = [];
+        
         class Particle {
-            constructor(x, y, directionX, directionY, size, color) {
-                this.x = x;
-                this.y = y;
-                this.directionX = directionX;
-                this.directionY = directionY;
-                this.size = size;
-                this.color = color;
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
             }
-
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.size > 0.2) this.size -= 0.01;
+            }
             draw() {
+                ctx.fillStyle = '#00e5ff';
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                ctx.fillStyle = '#00e5ff'; // Cyan neon color
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
             }
-
-            update() {
-                if (this.x > canvas.width || this.x < 0) {
-                    this.directionX = -this.directionX;
-                }
-                if (this.y > canvas.height || this.y < 0) {
-                    this.directionY = -this.directionY;
-                }
-
-                // Mouse interactivity
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                let distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance < mouse.radius + this.size) {
-                    if (mouse.x < this.x && this.x < canvas.width - this.size * 10) {
-                        this.x += 2;
-                    }
-                    if (mouse.x > this.x && this.x > this.size * 10) {
-                        this.x -= 2;
-                    }
-                    if (mouse.y < this.y && this.y < canvas.height - this.size * 10) {
-                        this.y += 2;
-                    }
-                    if (mouse.y > this.y && this.y > this.size * 10) {
-                        this.y -= 2;
-                    }
-                }
-                this.x += this.directionX;
-                this.y += this.directionY;
-                this.draw();
-            }
         }
-
         function init() {
-            particlesArray = [];
-            // Adjust particle density based on screen size
-            let numberOfParticles = (canvas.height * canvas.width) / 10000;
-            
-            for (let i = 0; i < numberOfParticles; i++) {
-                let size = (Math.random() * 2) + 1;
-                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
-                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
-                let directionX = (Math.random() * 1.5) - 0.75;
-                let directionY = (Math.random() * 1.5) - 0.75;
-
-                particlesArray.push(new Particle(x, y, directionX, directionY, size, '#00e5ff'));
-            }
+            for(let i=0; i<100; i++) particlesArray.push(new Particle());
         }
-
-        function connect() {
-            let opacityValue = 1;
-            for (let a = 0; a < particlesArray.length; a++) {
-                for (let b = a; b < particlesArray.length; b++) {
-                    let dx = particlesArray[a].x - particlesArray[b].x;
-                    let dy = particlesArray[a].y - particlesArray[b].y;
-                    let distance = dx * dx + dy * dy;
-                    
-                    if (distance < 12000) {
-                        opacityValue = 1 - (distance / 12000);
-                        ctx.strokeStyle = 'rgba(0, 229, 255,' + opacityValue + ')';
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
         function animate() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            particlesArray.forEach((p, index) => {
+                p.update();
+                p.draw();
+                if (p.size <= 0.2) { particlesArray.splice(index, 1); particlesArray.push(new Particle()); }
+            });
             requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, innerWidth, innerHeight);
-            
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-            }
-            connect();
         }
-
-        window.addEventListener('resize', function() {
-            canvas.width = innerWidth;
-            canvas.height = innerHeight;
-            init();
-        });
-
-        window.addEventListener('mouseout', function() {
-            mouse.x = undefined;
-            mouse.y = undefined;
-        });
-
         init();
         animate();
     </script>
