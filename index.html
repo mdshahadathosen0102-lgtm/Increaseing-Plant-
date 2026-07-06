@@ -2,298 +2,598 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Landscape AR Rich Rose Bush</title>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shahadat - Web Developer Portfolio</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
+        /* CSS Variables for Consistent Theming */
+        :root {
+            --bg-color: #05060f;
+            --card-bg: #11131e;
+            --primary-color: #00d2ff;
+            --text-main: #ffffff;
+            --text-muted: #a0aab2;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        /* Global Reset */
+        * {
             margin: 0;
-            overflow: hidden;
-            background: #000;
-            font-family: Arial, sans-serif;
-            user-select: none;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            scroll-behavior: smooth;
         }
-        #webcam {
-            display: none;
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            background-image: radial-gradient(circle at top right, #111e30, transparent 40%),
+                              radial-gradient(circle at bottom left, #0d1b2a, transparent 40%);
+            min-height: 100vh;
         }
-        #output_canvas {
-            width: 100vw;
-            height: 100vh;
-            display: block;
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+        
+        .cyan-text { color: var(--primary-color); }
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        #start-btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 18px 45px;
-            font-size: 20px;
-            font-weight: bold;
-            background: linear-gradient(45deg, #e91e63, #ff5722);
-            color: white;
-            border: none;
-            border-radius: 35px;
+        .section-title span {
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 5px;
+        }
+
+        /* ----- Navbar ----- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(5, 6, 15, 0.9);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 210, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-links li a {
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links li a:hover { color: var(--primary-color); }
+        
+        .social-nav {
+            display: flex;
+            gap: 15px;
+            margin-left: 20px;
+        }
+        .social-nav a:hover { color: var(--primary-color); }
+
+        /* Login Button in Nav */
+        .login-btn {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 5px 15px;
+            border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-            z-index: 10;
-            transition: 0.2s;
+            transition: 0.3s;
         }
-        #start-btn:active {
-            transform: translate(-50%, -50%) scale(0.95);
+        .login-btn:hover {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        /* ----- Hero Section ----- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            margin-top: 50px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #000;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.7);
+            transform: translateY(-2px);
+        }
+
+        /* ----- Sections Layout ----- */
+        section { padding: 100px 5%; }
+
+        /* ----- Services Section ----- */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            border-color: rgba(0, 210, 255, 0.3);
+        }
+
+        .service-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .service-card h3 { margin-bottom: 10px; font-size: 1.2rem; }
+        .service-card p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+        .service-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-outline:hover { background: var(--primary-color); color: #000; }
+
+        /* ----- Portfolio Section (NEW) ----- */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .portfolio-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .portfolio-img {
+            width: 100%;
+            height: 200px;
+            background: #1a1d2d; /* Placeholder */
+            object-fit: cover;
+        }
+        .portfolio-info { padding: 20px; }
+        .portfolio-info h3 { font-size: 1.2rem; margin-bottom: 10px; }
+        .portfolio-info p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px; }
+
+        /* ----- About Section ----- */
+        .about-container {
+            display: flex;
+            gap: 50px;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            flex-wrap: wrap;
+        }
+        .about-img-wrapper { text-align: center; flex: 1; min-width: 250px; }
+        .about-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+        .about-text { flex: 2; min-width: 300px; }
+        .about-text h3 { margin-bottom: 15px; font-size: 1.5rem; color: var(--primary-color); }
+        .about-text p { color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; font-size: 0.95rem; }
+        
+        /* Skills Progress Bar */
+        .skills-container { margin-top: 20px; margin-bottom: 30px; }
+        .skill { margin-bottom: 15px; }
+        .skill-name { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #2a2d3e;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress { height: 100%; background: var(--primary-color); border-radius: 10px; }
+
+        /* ----- Contact Section ----- */
+        .contact-container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .contact-info { flex: 1; min-width: 250px; }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .info-item i { font-size: 1.5rem; color: var(--primary-color); }
+        .info-item h4 { font-size: 1rem; margin-bottom: 5px; }
+        .info-item p { color: var(--text-muted); font-size: 0.9rem; }
+
+        .contact-form {
+            flex: 2;
+            min-width: 300px;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #ddd; }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: #1a1d2d;
+            border: 1px solid #2a2d3e;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-color); }
+        .form-group textarea { height: 120px; resize: none; }
+        
+        .contact-form button { width: 100%; }
+
+        /* ----- Footer ----- */
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: #030408;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .footer-socials { margin-bottom: 15px; }
+        .footer-socials a {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: 0.3s;
+        }
+        .footer-socials a:hover { color: var(--primary-color); transform: translateY(-3px); }
+
+        /* ----- Login Modal (From screenshot 15655.jpg) ----- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 2000;
+        }
+        .login-box {
+            background: var(--card-bg); padding: 40px; border-radius: 20px;
+            width: 100%; max-width: 350px; text-align: center;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute; top: 15px; right: 20px; font-size: 1.5rem;
+            cursor: pointer; color: var(--text-muted);
+        }
+        .close-btn:hover { color: #fff; }
+        .login-box h2 { color: var(--primary-color); margin-bottom: 25px; font-size: 1.5rem; }
+        .login-box .form-group { text-align: left; }
+        .login-box .form-group label { font-size: 0.8rem; }
+        .login-box p { margin-top: 20px; font-size: 0.8rem; color: var(--text-muted); }
+        .login-box p a { color: var(--primary-color); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; /* Add hamburger menu for real mobile nav */ }
+            .hero h1 { font-size: 2.2rem; }
+            section { padding: 60px 5%; }
+            .about-container { flex-direction: column; text-align: center; }
+            .skill-name { justify-content: center; gap: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <button id="start-btn">Camera Chalu Korun (Start)</button>
-    <video id="webcam" autoplay playsinline></video>
-    <canvas id="output_canvas"></canvas>
+    <!-- Header / Navbar -->
+    <header>
+        <div class="logo">SHAHADAT</div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="social-nav">
+            <a href="#"><i class="fab fa-github"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <button class="login-btn" onclick="openModal()">Login</button>
+        </div>
+    </header>
 
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <h1>Welcome to my website</h1>
+        <p>I create modern, responsive, and aesthetically pleasing websites for your business needs.</p>
+        <a href="#services" class="btn-primary">Explore Services</a>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services">
+        <h2 class="section-title"><span>Our Services</span></h2>
+        <div class="services-grid">
+            <!-- Card 1 -->
+            <div class="service-card">
+                <i class="fas fa-laptop-code"></i>
+                <h3 class="cyan-text">Web Design & Development</h3>
+                <p>আপনার ব্র্যান্ডের জন্য সম্পূর্ণ কাস্টমাইজড এবং আধুনিক ওয়েবসাইট তৈরি করে থাকি।</p>
+                <!-- Add actual image path below -->
+                <img src="https://via.placeholder.com/300x150/1a1d2d/00d2ff?text=Web+Dev" alt="Web Dev">
+                <button class="btn-outline">View Project</button>
+            </div>
+            <!-- Card 2 -->
+            <div class="service-card">
+                <i class="fas fa-shopping-cart"></i>
+                <h3 class="cyan-text">E-commerce</h3>
+                <p>সহজ প্রোডাক্ট ম্যানেজমেন্ট এবং পেমেন্ট গেটওয়ে সহ প্রফেশনাল অনলাইন শপ তৈরি।</p>
+                <img src="https://via.placeholder.com/300x150/1a1d2d/00d2ff?text=E-commerce" alt="E-Commerce">
+                <button class="btn-outline">View Project</button>
+            </div>
+            <!-- Card 3 -->
+            <div class="service-card">
+                <i class="fas fa-pen-nib"></i>
+                <h3 class="cyan-text">UI/UX Design</h3>
+                <p>ব্যবহারকারীদের জন্য আকর্ষণীয় ও সহজে ব্যবহারযোগ্য ইন্টারফেস বা লেআউট প্রোটোটাইপিং।</p>
+                <img src="https://via.placeholder.com/300x150/1a1d2d/00d2ff?text=UI/UX" alt="UI/UX">
+                <button class="btn-outline">View Project</button>
+            </div>
+            <!-- Card 4 -->
+            <div class="service-card">
+                <i class="fas fa-chart-line"></i>
+                <h3 class="cyan-text">SEO & Digital Marketing</h3>
+                <p>সার্চ ইঞ্জিনে আপনার ওয়েবসাইটটিকে সবার উপরে নিয়ে আসতে কার্যকরী এসইও সার্ভিস।</p>
+                <img src="https://via.placeholder.com/300x150/1a1d2d/00d2ff?text=SEO" alt="SEO">
+                <button class="btn-outline">View Project</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section (New Addition) -->
+    <section id="portfolio">
+        <h2 class="section-title"><span>My Projects</span></h2>
+        <div class="portfolio-grid">
+            <div class="portfolio-card">
+                <img src="https://via.placeholder.com/400x200/1a1d2d/ffffff?text=Project+1" class="portfolio-img" alt="Project 1">
+                <div class="portfolio-info">
+                    <h3>Cyber Security Blog</h3>
+                    <p>A responsive blog platform built with React and Node.js.</p>
+                    <button class="btn-outline">Live Demo <i class="fas fa-external-link-alt"></i></button>
+                </div>
+            </div>
+            <div class="portfolio-card">
+                <img src="https://via.placeholder.com/400x200/1a1d2d/ffffff?text=Project+2" class="portfolio-img" alt="Project 2">
+                <div class="portfolio-info">
+                    <h3>AI Image Gallery</h3>
+                    <p>A portfolio site for displaying high-resolution AI generated images.</p>
+                    <button class="btn-outline">Live Demo <i class="fas fa-external-link-alt"></i></button>
+                </div>
+            </div>
+            <div class="portfolio-card">
+                <img src="https://via.placeholder.com/400x200/1a1d2d/ffffff?text=Project+3" class="portfolio-img" alt="Project 3">
+                <div class="portfolio-info">
+                    <h3>Corporate E-commerce</h3>
+                    <p>Full-stack e-commerce solution with integrated payment gateway.</p>
+                    <button class="btn-outline">Live Demo <i class="fas fa-external-link-alt"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <h2 class="section-title"><span>About Me</span></h2>
+        <div class="about-container">
+            <div class="about-img-wrapper">
+                <!-- Replace with your actual image -->
+                <img src="https://via.placeholder.com/150" alt="Shahadat" class="about-img">
+                <br>
+                <a href="#" class="btn-primary" style="margin-top: 15px; padding: 10px 20px; font-size: 0.9rem;">
+                    <i class="fas fa-download"></i> Download CV
+                </a>
+            </div>
+            <div class="about-text">
+                <h3 class="cyan-text">Who am I?</h3>
+                <p>Hi, I am Shahadat. I am a passionate web developer and currently a 3rd-semester Computer Science and Engineering (CSE) student. I have a keen interest in programming, cybersecurity, and creating modern, secure, and visually appealing web applications. My goal is to help businesses strengthen their online presence through modern web solutions.</p>
+                
+                <!-- Skills Added -->
+                <div class="skills-container">
+                    <h4 style="margin-bottom: 15px; color: #fff;">My Skills</h4>
+                    
+                    <div class="skill">
+                        <div class="skill-name"><span>HTML & CSS</span> <span>90%</span></div>
+                        <div class="progress-bar"><div class="progress" style="width: 90%;"></div></div>
+                    </div>
+                    <div class="skill">
+                        <div class="skill-name"><span>JavaScript & React</span> <span>75%</span></div>
+                        <div class="progress-bar"><div class="progress" style="width: 75%;"></div></div>
+                    </div>
+                    <div class="skill">
+                        <div class="skill-name"><span>Cybersecurity Basics</span> <span>70%</span></div>
+                        <div class="progress-bar"><div class="progress" style="width: 70%;"></div></div>
+                    </div>
+                    <div class="skill">
+                        <div class="skill-name"><span>UI/UX & Figma</span> <span>80%</span></div>
+                        <div class="progress-bar"><div class="progress" style="width: 80%;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2 class="section-title"><span>Get in Touch</span></h2>
+        <div class="contact-container">
+            <!-- Contact Info Added -->
+            <div class="contact-info">
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <h4>Email</h4>
+                        <p>name@example.com</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-phone-alt"></i>
+                    <div>
+                        <h4>Phone</h4>
+                        <p>+880 1234-567890</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <h4>Location</h4>
+                        <p>Dhaka, Bangladesh</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="contact-form">
+                <form action="#">
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" placeholder="Write your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" placeholder="name@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Your Message</label>
+                        <textarea placeholder="How can I help you? ..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-socials">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+        </div>
+        <p>© 2026 MD SHAHADAT. সর্বস্বত্ব সংরক্ষিত।</p>
+    </footer>
+
+    <!-- Login Modal Box -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="login-box">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>Welcome Back</h2>
+            <form action="#">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary">Log In</button>
+            </form>
+            <p>Don't have an account? <a href="#">Sign up</a></p>
+        </div>
+    </div>
+
+    <!-- JavaScript for Modal -->
     <script>
-        const video = document.getElementById('webcam');
-        const canvas = document.getElementById('output_canvas');
-        const ctx = canvas.getContext('2d');
-        const startBtn = document.getElementById('start-btn');
-
-        let bloomValue = 0.0;
-        let growValue = 0.0;
-        let windValue = 2.5;
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        function openModal() {
+            document.getElementById('loginModal').style.display = 'flex';
         }
-        window.addEventListener('resize', resizeCanvas);
-        window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 300));
-        resizeCanvas();
 
-        // Initialize MediaPipe Hands
-        const hands = new Hands({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-        });
+        function closeModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
 
-        hands.setOptions({
-            maxNumHands: 2,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.55,
-            minTrackingConfidence: 0.55
-        });
-
-        hands.onResults(onResults);
-
-        function onResults(results) {
-            ctx.save();
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Widescreen Mirror Horizontal View
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
-            if (results.image) {
-                ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+        // Close modal when clicking outside of the box
+        window.onclick = function(event) {
+            var modal = document.getElementById('loginModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
             }
-            ctx.restore();
-
-            if (results.multiHandLandmarks && results.multiHandedness) {
-                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
-                    const landmarks = results.multiHandLandmarks[i];
-                    const networkHand = results.multiHandedness[i].label; // 'Left' or 'Right'
-                    
-                    const p1 = landmarks[4]; // Thumb tip
-                    const p2 = landmarks[8]; // Index tip
-                    const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-                    
-                    let val = (dist - 0.03) / 0.18;
-                    val = Math.max(0, Math.min(1, val));
-
-                    if (networkHand === 'Right') { 
-                        bloomValue = val;
-                    } else {
-                        growValue = val;
-                    }
-                }
-            }
-
-            // Fine breeze calculation
-            windValue = 2.0 + Math.sin(Date.now() * 0.0025) * 1.2;
-
-            // Render the dense rose bush matching user's image structure
-            drawRoseBush(growValue, bloomValue, windValue);
         }
-
-        function drawRoseBush(grow, bloom, wind) {
-            const baseX = canvas.width * 0.5; // Centered for landscape view
-            const baseY = canvas.height;
-            const maxBushHeight = canvas.height * 0.65;
-            const currentHeight = grow * maxBushHeight;
-            
-            if (currentHeight < 20) return;
-
-            ctx.save();
-            
-            // Soft sway animation link to height
-            const windOffset = Math.sin(Date.now() * 0.003) * wind * 14 * (currentHeight / maxBushHeight);
-            
-            // Position origin at base center
-            ctx.translate(baseX + windOffset, baseY);
-            
-            // Main Base Stem (Ghono Gach Trunk)
-            ctx.strokeStyle = '#1B5E20';
-            ctx.lineWidth = 22 * grow;
-            ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(0, -45 * grow);
-            ctx.stroke();
-
-            // Multi-branch definition structure for creating a full rose bush like 14219.jpg
-            const roseBranches = [
-                { startX: 0, startY: -20, endX: -40, endY: -110, cpX: -15, cpY: -65, fScale: 1.0 },
-                { startX: 0, startY: -25, endX: 45, endY: -120, cpX: 25, cpY: -70, fScale: 1.1 },
-                { startX: -20, startY: -65, endX: -100, endY: -170, cpX: -65, cpY: -110, fScale: 0.95 },
-                { startX: 20, startY: -70, endX: 110, endY: -180, cpX: 70, cpY: -120, fScale: 1.0 },
-                { startX: -10, startY: -40, endX: -80, endY: -100, cpX: -50, cpY: -70, fScale: 0.85 },
-                { startX: 10, startY: -40, endX: 80, endY: -110, cpX: 50, cpY: -70, fScale: 0.85 },
-                // Upper layers
-                { startX: -40, startY: -110, endX: -70, endY: -240, cpX: -60, cpY: -180, fScale: 0.9 },
-                { startX: 45, startY: -120, endX: 75, endY: -250, cpX: 65, cpY: -190, fScale: 0.95 },
-                { startX: -40, startY: -110, endX: 15, endY: -230, cpX: -10, cpY: -170, fScale: 0.85 },
-                { startX: 45, startY: -120, endX: -15, endY: -245, cpX: 15, cpY: -185, fScale: 0.85 },
-                // Extreme outer bush expansions
-                { startX: -65, startY: -110, endX: -160, endY: -160, cpX: -110, cpY: -135, fScale: 0.9 },
-                { startX: 70, startY: -120, endX: 165, endY: -175, cpX: 115, cpY: -145, fScale: 0.9 },
-                { startX: -100, startY: -170, endX: -170, endY: -240, cpX: -140, cpY: -205, fScale: 0.8 },
-                { startX: 110, startY: -180, endX: 180, endY: -250, cpX: 150, cpY: -215, fScale: 0.8 },
-                // Center dense top buds
-                { startX: 0, startY: -45, endX: 0, endY: -270, cpX: 10, cpY: -150, fScale: 1.15 }
-            ];
-
-            roseBranches.forEach(b => {
-                const activationThreshold = Math.abs(b.endY) / 290 * 0.85;
-                if (grow > activationThreshold) {
-                    ctx.save();
-                    ctx.strokeStyle = '#2E7D32';
-                    ctx.lineWidth = 9 * (1 - activationThreshold * 0.45) * grow;
-                    ctx.lineCap = 'round';
-                    
-                    let sX = b.startX * grow;
-                    let sY = b.startY * grow;
-                    let eX = b.endX * grow + (windOffset * 0.15);
-                    let eY = b.endY * grow;
-                    let cX = b.cpX * grow + (windOffset * 0.08);
-                    let cY = b.cpY * grow;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(sX, sY);
-                    ctx.quadraticCurveTo(cX, cY, eX, eY);
-                    ctx.stroke();
-                    
-                    // Generating realistic green leaves along the stems
-                    ctx.fillStyle = '#388E3C';
-                    for (let t = 0.25; t <= 0.85; t += 0.2) {
-                        let lx = (1-t)*(1-t)*sX + 2*(1-t)*t*cX + t*t*eX;
-                        let ly = (1-t)*(1-t)*sY + 2*(1-t)*t*cY + t*t*eY;
-                        
-                        ctx.beginPath();
-                        ctx.ellipse(lx, ly, 14 * grow, 7 * grow, Math.PI/4 + t, 0, Math.PI*2);
-                        ctx.fill();
-                        ctx.beginPath();
-                        ctx.ellipse(lx + 4, ly - 3, 11 * grow, 6 * grow, -Math.PI/4, 0, Math.PI*2);
-                        ctx.fill();
-                    }
-                    
-                    // Draw Rose bud/flower at tip
-                    drawRoseBudToFlower(eX, eY, b.fScale * grow, bloom);
-                    ctx.restore();
-                }
-            });
-            
-            ctx.restore();
-        }
-
-        function drawRoseBudToFlower(rx, ry, scale, bloom) {
-            ctx.save();
-            ctx.translate(rx, ry);
-            
-            // Rich magenta red rose color palettes matching 14219.jpg
-            const mainRed = '#E91E63'; 
-            const deepRed = '#C2185B';
-            const sepalsGreen = '#1B5E20';
-            
-            // Draw Sepals/Calyx (সবুজ পাতার মতো গোঁড়া)
-            ctx.fillStyle = sepalsGreen;
-            ctx.beginPath();
-            ctx.arc(0, 4 * scale, 9 * scale, 0, Math.PI);
-            ctx.fill();
-            
-            if (bloom < 0.18) {
-                // --- STAGE 1: TIGHT BUD (একদম বন্ধ কলি) ---
-                ctx.fillStyle = deepRed;
-                ctx.beginPath();
-                ctx.ellipse(0, -3 * scale, 8 * scale, 14 * scale, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = mainRed;
-                ctx.beginPath();
-                ctx.ellipse(-3 * scale, -3 * scale, 6 * scale, 13 * scale, -0.12, 0, Math.PI * 2);
-                ctx.ellipse(3 * scale, -3 * scale, 6 * scale, 13 * scale, 0.12, 0, Math.PI * 2);
-                ctx.fill();
-            } else {
-                // --- STAGE 2: BLOOMING ROSE (পাপড়ি মেলে ফুটা ফুল) ---
-                const layers = 3;
-                const basePetalsCount = 5;
-                
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = 'rgba(233, 30, 99, 0.5)';
-
-                for (let l = 0; l < layers; l++) {
-                    const layerBloomFactor = Math.min(1, bloom * (1.0 + l * 0.25));
-                    const petals = basePetalsCount + (l * 2);
-                    const layerScale = scale * (1.1 - l * 0.22);
-                    
-                    const pDistY = layerBloomFactor * 24 * layerScale;
-                    const pDistX = layerBloomFactor * 16 * layerScale;
-                    
-                    ctx.fillStyle = (l === 0) ? deepRed : mainRed;
-                    
-                    for (let i = 0; i < petals; i++) {
-                        ctx.save();
-                        ctx.rotate((i * 2 * Math.PI) / petals + (l * 0.6));
-                        ctx.beginPath();
-                        ctx.ellipse(0, -pDistY / 1.6, pDistX, pDistY, 0, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.restore();
-                    }
-                }
-                
-                // Deep inner petal shadow core
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = '#880E4F';
-                ctx.beginPath();
-                ctx.arc(0, 0, 6 * scale * bloom, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            ctx.restore();
-        }
-
-        // Optimized landscape camera initialization 
-        startBtn.addEventListener('click', async () => {
-            startBtn.style.display = 'none';
-            const camera = new Camera(video, {
-                onFrame: async () => {
-                    await hands.send({image: video});
-                },
-                width: 1280, 
-                height: 720,
-                facingMode: 'user'
-            });
-            camera.start().catch(err => {
-                alert("Camera error: " + err);
-                startBtn.style.display = 'block';
-            });
-        });
     </script>
 </body>
 </html>
