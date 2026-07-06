@@ -1,0 +1,11 @@
+html {
+    background-color: var(--bg-color);
+}
+
+body {
+    background-color: transparent; /* এই লাইনটি শুধু পরিবর্তন হবে */
+    color: var(--text-main);
+    background-image: radial-gradient(circle at top right, #111e30, transparent 40%),
+                      radial-gradient(circle at bottom left, #0d1b2a, transparent 40%);
+    min-height: 100vh;
+}
